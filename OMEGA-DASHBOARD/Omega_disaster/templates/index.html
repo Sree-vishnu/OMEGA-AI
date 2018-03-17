@@ -1,0 +1,172 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+  <style type="text/css">
+
+      .jumbotron {
+    background-color: #06000a !important;
+    opacity: 0.8;
+}
+      .te-succ {
+     color: #FFFFFF;
+text-align: center;
+
+}
+      .ppp1{
+     color: #EEEEEE;
+text-align: center;
+font-family: 'Pavanam', sans-serif;
+}
+
+
+     .container-bg{
+         /* set border styling */
+    border-color: #06000a;
+    border-style: solid;
+    border-width: 3px;
+    background: #06000a;
+    /* set border roundness */
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    opacity: 0.9;
+
+}
+</style>
+
+
+
+
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+	<div class="jumbotron">
+        <div class="container">
+        <span class="te-succ"><h1>OMEGA-SAFE</h1></span>
+        <span class="ppp1"><h4> Safe guard against fires and earthquakes... Saving Lives... Making the world smarter... </h4></span>
+        </div>
+        </div>
+
+	<div class="container">
+        <div class="row">
+
+        <div class="col-md-2">
+             <button class="btn btn-danger bt-lg " type='button' id='led_on'>SOS Room 1</button>
+        </div>
+
+	<div class="col-md-4">
+              <h2>Room ONE</h2>
+              <canvas id='dht_chart' width='400' height='400'></canvas>
+            </div>
+          </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
+
+	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+
+	<script>
+	$(document).ready(function() {
+            // Setup button click handlers.
+            $('#led_on').click(function() {
+              $.post('/sos/1');
+            });
+
+            $('#led_on2').click(function() {
+              $.post('/sos/2');
+            });
+
+//	$(document).ready(function() {
+  //          // Setup button click handlers.
+    //        $('#led_on2').click(function() {
+      //        $.post('/sos2/1');
+        //    });
+
+	// Setup temperature & humidity chart.
+            var ctx = $('#dht_chart').get(0).getContext('2d');
+            var dhtChart = new Chart(ctx).Line({
+              labels: [],
+              datasets: [
+                {
+                  label: "Temperature (Celsius)",
+                  fillColor: "rgba(255,80,80,0.2)",
+                  strokeColor: "rgba(216,92,39,1)",
+                  pointColor: "rgba(153,0,0,1)",
+                  pointStrokeColor: "#fff",
+                  pointHighlightFill: "#fff",
+                  pointHighlightStroke: "rgba(153,0,0,1)",
+                  data: []
+                },
+                {
+                  label: "Humidity (%)",
+                  fillColor: "rgba(151,187,205,0.2)",
+                  strokeColor: "rgba(151,187,205,1)",
+                  pointColor: "rgba(151,187,205,1)",
+                  pointStrokeColor: "#fff",
+                  pointHighlightFill: "#fff",
+                  pointHighlightStroke: "rgba(151,187,205,1)",
+                  data: []
+                },
+                {
+                  label: "CO (%)",
+                  fillColor: "rgba(151,187,205,0.2)",
+                  strokeColor: "rgba(151,187,205,1)",
+                  pointColor: "rgba(151,187,205,1)",
+                  pointStrokeColor: "#fff",
+                  pointHighlightFill: "#fff",
+                  pointHighlightStroke: "rgba(151,187,205,1)",
+                  data: []
+                },
+                {
+                  label: "Vibration (%)",
+                  fillColor: "rgba(102,0,255,0.2)",
+                  strokeColor: "rgba(102,0,255,1)",
+                  pointColor: "rgba(51,51,153,1)",
+                  pointStrokeColor: "#fff",
+                  pointHighlightFill: "#fff",
+                  pointHighlightStroke: "rgba(102,0,255,1)",
+                  data: []
+                }
+              ]
+            });
+
+	 // Function to update the page with the latest thing state.
+            function updateThing(thingState) {
+              // Add the temperature and humidity to the chart.
+              dhtChart.addData([thingState.temperature, thingState.humidity, thingState.co, thingState.vib],
+                new Date().toLocaleTimeString());
+
+              // Bump off the oldest chart measurement after 20 of them
+   if (dhtChart.datasets[0].points.length > 20) {
+                dhtChart.removeData();
+              }
+            }
+
+
+            // Setup thing state server sent event receiver.
+            var switchSource = new EventSource("{{ url_for('thing') }}");
+            switchSource.onmessage = function(e) {
+              updateThing($.parseJSON(e.data));
+              updateThing2($.parseJSON(e.data));
+            }
+
+            // Set the switch based on the value passed to this template.
+            updateSwitch('{{ switch }}');
+          });
+
+	</script>
+    </body>
+</html>
