@@ -1,4 +1,9 @@
 # OMEGA-AI
 MITS Hackathon
 Progress :
-OMEGA DASH - A Personal Dashboard for OMEGA AI with gauges & toggle switches showing different devices and appliances was implemented.
+
+Fully implemeted the Omega-SAFE node for disaster alert and management capabilities. Completed the alerting, webapp  of Omega-SAFE and the MQTT message tranfer methods. A small database 
+
+
+Also completed the sensor and other hardware interfacing.
+
